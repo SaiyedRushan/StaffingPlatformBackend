@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  web:
+    image: activatestaff:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      NODE_ENV: development
