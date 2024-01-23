@@ -3,6 +3,9 @@ import bodyParser from "body-parser"
 import { configDotenv } from "dotenv"
 import loggerMiddleware from "./middleware/loggerMiddleware"
 import routes from "./routes/routes"
+import swaggerUi from "swagger-ui-express"
+import swaggerDocument from "./swagger"
+
 configDotenv()
 
 const app = express()
@@ -11,6 +14,8 @@ const PORT = process.env.PORT || 8080
 // middleware to parse json data
 app.use(bodyParser.json())
 app.use(loggerMiddleware)
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 app.get("/", (_, res: Response) => {
   res.send("Welcome, to use the api, please go to /api")
