@@ -3,7 +3,11 @@ import { v4 as uuidv4 } from "uuid"
 import { checkWorkerExists } from "./workerService"
 
 // temp storage for jobs, would use a database in real life
-const jobs: Job[] = []
+const jobs: Job[] = [
+  new Job(uuidv4(), "Software Engineer", "Full stack engineer with expertise in backend development", "£85,000 - £105,000"),
+  new Job(uuidv4(), "Devops Engineer", "Adept in creating robust cicd pipelines and integrating development and operations", "£60,000 - £80,000"),
+  new Job(uuidv4(), "Software Architect", "Expertise in building scalable, reliable and highly performant systems", "£80,000 - £100,000"),
+]
 
 export const createJob = ({ title, description, salaryRange }: { title: string; description: string; salaryRange: string }): Job => {
   const newJob = new Job(uuidv4(), title, description, salaryRange)

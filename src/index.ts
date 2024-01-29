@@ -5,6 +5,8 @@ import loggerMiddleware from "./middleware/loggerMiddleware"
 import routes from "./routes/routes"
 import swaggerUi from "swagger-ui-express"
 import swaggerDocument from "./swagger"
+import { createHandler } from "graphql-http/lib/use/express"
+import { schema } from "./graphql/schema"
 
 configDotenv()
 
@@ -16,6 +18,8 @@ app.use(bodyParser.json())
 app.use(loggerMiddleware)
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+
+app.all("/graphql", createHandler({ schema: schema }))
 
 app.get("/", (_, res: Response) => {
   res.send("Welcome, to use the api, please go to /api")
