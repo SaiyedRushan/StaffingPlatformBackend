@@ -1,65 +1,48 @@
+import { ObjectId } from "mongoose"
 import Job from "../models/jobModel"
-import { v4 as uuidv4 } from "uuid"
 import { checkWorkerExists } from "./workerService"
+type JobType = typeof Job
 
-// temp storage for jobs, would use a database in real life
-const jobs: Job[] = [
-  new Job(uuidv4(), "Software Engineer", "Full stack engineer with expertise in backend development", "£85,000 - £105,000"),
-  new Job(uuidv4(), "Devops Engineer", "Adept in creating robust cicd pipelines and integrating development and operations", "£60,000 - £80,000"),
-  new Job(uuidv4(), "Software Architect", "Expertise in building scalable, reliable and highly performant systems", "£80,000 - £100,000"),
-]
-
-export const createJob = ({ title, description, salaryRange }: { title: string; description: string; salaryRange: string }): Job => {
-  const newJob = new Job(uuidv4(), title, description, salaryRange)
-  jobs.push(newJob)
+export const createJob = async ({ title, description, salaryRange }: { title: string; description: string; salaryRange: string }) => {
+  const newJob = new Job({ title, description, salaryRange })
+  await newJob.save()
   return newJob
 }
 
-export const updateJob = (jobId: string, { title, description, salaryRange }: { title?: string; description?: string; salaryRange?: string }): Job | null => {
-  const job = jobs.find((job) => job.id === jobId) // when using mongodb, we'd use findOneAndUpdate or save
-  if (job) {
-    job.title = title || job.title
-    job.description = description || job.description
-    job.salaryRange = salaryRange || job.salaryRange
-    return job
-  }
-  return null
+export const updateJob = async (jobId: string, { title, description, salaryRange }: { title?: string; description?: string; salaryRange?: string }): Promise<JobType | null> => {
+  return await Job.findByIdAndUpdate(jobId, { title, description, salaryRange }, { new: true })
 }
 
-export const deleteJob = (jobId: string): Job | null => {
-  const index = jobs.findIndex((job) => job.id === jobId)
-  if (index !== -1) {
-    const deletedJob = jobs.splice(index, 1)
-    return deletedJob[0]
-  }
-  return null
+export const deleteJob = async (jobId: string): Promise<JobType | null> => {
+  return await Job.findByIdAndDelete(jobId)
 }
 
-export const applyForJob = (jobId: string, workerId: string): { success: boolean; error?: string } => {
-  const job = jobs.find((job) => job.id === jobId)
+export const applyForJob = async (jobId: string, workerId: string): Promise<{ success: boolean; error?: string | undefined }> => {
+  const job = await Job.findById(jobId)
   if (!job) {
     return { success: false, error: "Job not found" }
   }
 
-  const worker = checkWorkerExists(workerId)
+  const worker = await checkWorkerExists(workerId)
   if (worker) {
-    job.applicants.push(worker)
+    job.applicants.push(worker._id)
+    await job.save()
     return { success: true }
   } else {
     return { success: false, error: "Worker not found" }
   }
 }
 
-export const hireWorkerForJob = (jobId: string, workerId: string): { success: boolean; error?: string } => {
-  const job = jobs.find((job) => job.id === jobId)
+export const hireWorkerForJob = async (jobId: string, workerId: ObjectId): Promise<{ success: boolean; error?: string }> => {
+  const job = await Job.findById(jobId)
   if (!job) {
     return { success: false, error: "Job not found" }
   }
-  const worker = job.applicants.find((applicant) => applicant.id === workerId)
+  const worker = job.applicants.find((applicantId) => applicantId === workerId)
   if (!worker) {
     return { success: false, error: "Worker not found among applicants" }
   }
-  job.hireWorker(worker)
-  job.applicants = job.applicants.filter((applicant) => applicant.id !== workerId)
+  // set hiredWorker to workerId
+  const updatedJob = await Job.findByIdAndUpdate(jobId, { hiredWorker: workerId, isHired: true }, { new: true })
   return { success: true }
 }

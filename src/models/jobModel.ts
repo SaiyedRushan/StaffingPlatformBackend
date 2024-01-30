@@ -1,29 +1,21 @@
-import Worker from "./workerModel"
+import mongoose, { Schema, Document } from "mongoose"
 
-// when using mongodb, we would be creating a schema here instead
-class Job {
-  id: string
+interface Job extends Document {
   title: string
   description: string
   salaryRange: string
-  applicants: Worker[] // we could also just store the workerIds here and do a join if it was a relation db
-  hiredWorker: Worker | null // we could also just store the workerId here
-  isHired: boolean = false
-
-  constructor(id: string, title: string, description: string, salaryRange: string) {
-    this.id = id
-    this.title = title
-    this.description = description
-    this.salaryRange = salaryRange
-    this.applicants = []
-    this.hiredWorker = null
-    this.isHired = false
-  }
-
-  hireWorker(worker: Worker): void {
-    this.hiredWorker = worker
-    this.isHired = true
-  }
+  applicants: Schema.Types.ObjectId[]
+  hiredWorker: Schema.Types.ObjectId
+  isHired: boolean
 }
 
-export default Job
+const JobSchema: Schema = new Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  salaryRange: { type: String, required: true },
+  applicants: [{ type: Schema.Types.ObjectId, ref: "Worker" }],
+  hiredWorker: { type: Schema.Types.ObjectId, ref: "Worker" },
+  isHired: { type: Boolean, default: false },
+})
+
+export default mongoose.model<Job>("Job", JobSchema)

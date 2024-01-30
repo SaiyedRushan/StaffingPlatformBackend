@@ -7,6 +7,7 @@ import swaggerUi from "swagger-ui-express"
 import swaggerDocument from "./swagger"
 import { createHandler } from "graphql-http/lib/use/express"
 import { schema } from "./graphql/schema"
+import connectdb from "./config/db"
 
 configDotenv()
 
@@ -26,6 +27,7 @@ app.get("/", (_, res: Response) => {
 })
 
 app.use("/api", routes)
+connectdb()
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`)
