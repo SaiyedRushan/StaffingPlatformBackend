@@ -1,3 +1,4 @@
+import { produceWorkerCreated } from "../kafka/producers/newWorkerProducer"
 import WorkerModel from "../models/workerModel"
 
 export const getWorkers = async () => {
@@ -10,7 +11,9 @@ export const getWorkerById = async (workerId: string) => {
 
 export const createWorker = async ({ name, email, phoneNumber }: { name: string; email: string; phoneNumber?: string }) => {
   const newWorker = new WorkerModel({ name, email, phoneNumber })
+  console.log("New worker created: ", newWorker)
   await newWorker.save()
+  await produceWorkerCreated(newWorker)
   return newWorker
 }
 

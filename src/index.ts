@@ -8,25 +8,29 @@ import swaggerDocument from "./swagger"
 import { createHandler } from "graphql-http/lib/use/express"
 import { schema } from "./graphql/schema"
 import connectdb from "./config/db"
-
+import { startEmailConsumer } from "./kafka/consumers/emailConsumer"
 configDotenv()
 
 const app = express()
 const PORT = process.env.PORT || 8080
 
-// middleware to parse json data
 app.use(bodyParser.json())
 app.use(loggerMiddleware)
 
+// start email consumer
+startEmailConsumer()
+
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
-app.all("/graphql", createHandler({ schema: schema }))
+app.post("/graphql", createHandler({ schema: schema }))
 
 app.get("/", (_, res: Response) => {
   res.send("Welcome, to use the api, please go to /api")
 })
 
 app.use("/api", routes)
+
+// connect to database
 connectdb()
 
 app.listen(PORT, () => {
