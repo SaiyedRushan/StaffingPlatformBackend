@@ -19,6 +19,7 @@
     "graphql-http": "^1.22.0",
     "kafkajs": "^2.2.4",
     "mongoose": "^8.1.1",
+    "redis": "^4.6.12",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "uuid": "^9.0.1"

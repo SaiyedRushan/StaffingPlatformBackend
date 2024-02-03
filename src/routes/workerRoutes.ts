@@ -94,5 +94,6 @@ const router: Router = express.Router()
 router.post("/", workerController.createWorker)
 router.put("/:workerId", workerController.updateWorker)
 router.delete("/:workerId", workerController.deleteWorker)
+router.get("/", workerController.getWorkers)
 
 export default router

@@ -1,6 +1,15 @@
 import { Request, Response } from "express"
 import * as workerService from "../services/workerService"
 
+export const getWorkers = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const workers = await workerService.getWorkers()
+    res.json(workers)
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" })
+  }
+}
+
 export const createWorker = (req: Request, res: Response): void => {
   try {
     const { name, email, phoneNumber } = req.body

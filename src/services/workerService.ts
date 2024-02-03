@@ -1,8 +1,29 @@
 import { produceWorkerCreated } from "../kafka/producers/newWorkerProducer"
 import WorkerModel from "../models/workerModel"
+import redisClient from "../config/redis"
 
 export const getWorkers = async () => {
-  return await WorkerModel.find()
+  const cacheKey = "workers"
+  let cachedWorkers = await redisClient.get(cacheKey)
+
+  if (cachedWorkers) {
+    console.log("Data retrieved from cache")
+    return JSON.parse(cachedWorkers)
+  } else {
+    return new Promise(async (resolve, reject) => {
+      // Simulate slow database query
+      setTimeout(async () => {
+        try {
+          const workers = await WorkerModel.find()
+          console.log("Data retrieved from database")
+          await redisClient.setEx(cacheKey, 3600, JSON.stringify(workers))
+          resolve(workers)
+        } catch (error) {
+          reject(error)
+        }
+      }, 5000)
+    })
+  }
 }
 
 export const getWorkerById = async (workerId: string) => {
