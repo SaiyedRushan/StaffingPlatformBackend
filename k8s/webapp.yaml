@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: saiyedrushan/activatestaff:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: NODE_ENV
+              value: Production
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-uri-secret
+                  key: MONGO_URI
+            - name: MONGO_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mongodb-config
+                  key: MONGO_DB_NAME
+            - name: KAFKAJS_NO_PARTITIONER_WARNING
+              value: "1"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: test
+spec:
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: NodePort
