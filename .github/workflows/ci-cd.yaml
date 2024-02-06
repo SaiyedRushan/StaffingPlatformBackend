@@ -59,9 +59,8 @@ jobs:
 
       - name: Configure gcloud CLI
         run: |
-          gcloud config set project ${{ secrets.PROJECT_NAME }}  
           gcloud container clusters get-credentials ${{ secrets.CLUSTER_NAME }} --region us-central1 --project ${{ secrets.PROJECT_NAME }}
 
       - name: Deploy to GKE
         run: |
-          kubectl apply -f ../k8s/
+          kubectl apply -f ./k8s/
