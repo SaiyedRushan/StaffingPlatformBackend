@@ -53,13 +53,16 @@ jobs:
         uses: "google-github-actions/auth@v2"
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.PROJECT_NAME}}
 
       - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Configure gcloud CLI
-        run: |
-          gcloud container clusters get-credentials ${{ secrets.CLUSTER_NAME }} --region us-central1 --project ${{ secrets.PROJECT_NAME }}
+      - id: "get-credentials"
+        uses: "google-github-actions/get-gke-credentials@v2"
+        with:
+          cluster_name: ${{ secrets.CLUSTER_NAME}}
+          location: "us-central1"
 
       - name: Deploy to GKE
         run: |

@@ -1,3 +1,5 @@
 node_modules
 .env*
 dist
+# Ignore generated kubeconfig from google-github-actions/get-gke-credentials
+gha-kubeconfig-*
